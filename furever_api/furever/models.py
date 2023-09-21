@@ -64,3 +64,10 @@ class Conexion(models.Model):
 class Foto(models.Model):
     foto = models.FileField(upload_to='user_pics/')
     interesado = models.OneToOneField(Interesado,on_delete=models.CASCADE)
+
+class Documentacion(models.Model):
+    doc = models.FileField(upload_to='user_docs/')
+    oferente = models.OneToOneField(Oferente,on_delete=models.CASCADE)
+    descripcion = models.TextField("Descripción",null=True,blank=True)
+
+ 
