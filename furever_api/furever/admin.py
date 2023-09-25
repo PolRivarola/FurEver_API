@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (Animal,
                     AnimalVenta,
-                    animalAdopcion,
+                    AnimalAdopcion,
                     UserApp,
                     Interesado,
                     Oferente,
@@ -26,7 +26,7 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(Animal)
 admin.site.register(AnimalVenta)
-admin.site.register(animalAdopcion)
+admin.site.register(AnimalAdopcion)
 admin.site.register(UserApp)
 admin.site.register(Interesado)
 admin.site.register(Oferente)

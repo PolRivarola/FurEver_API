@@ -10,7 +10,7 @@ class Animal(models.Model):
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
 
 
-class animalAdopcion(Animal):
+class AnimalAdopcion(Animal):
     vacunas_completas = models.BooleanField("Vacunas completas",null=False,blank=False)
     edad = models.IntegerField("Edad",null=False)
     necesidades_esp =models.TextField("Necesidades especiales",null=True,blank=True)
@@ -20,14 +20,14 @@ class animalAdopcion(Animal):
 
 
 class AnimalVenta(Animal):
-    sanidad = models.BooleanField("Sanidad",null=False,blank=False)
-    uniformidad = models.BooleanField("Uniformidad",null=False,blank=False)
-    trazada = models.BooleanField("Trazada",null=False,blank=False)
-    marca_liquida = models.BooleanField("Marca líquida",null=False,blank=False)
-    garrapata = models.BooleanField("Garrapata",null=False,blank=False)
-    mio_mio = models.BooleanField("Mio Mio",null=False,blank=False)
-    precio = models.FloatField("Precio",null=False)
-    cantidad = models.IntegerField("Cantidad",null=False)
+    sanidad = models.BooleanField("Sanidad",null=False,blank=False,default=False)
+    uniformidad = models.BooleanField("Uniformidad",null=False,blank=False,default=False)
+    trazada = models.BooleanField("Trazada",null=False,blank=False,default=False)
+    marca_liquida = models.BooleanField("Marca líquida",null=False,blank=False,default=False)
+    garrapata = models.BooleanField("Garrapata",null=False,blank=False,default=False)
+    mio_mio = models.BooleanField("Mio Mio",null=False,blank=False,default=False)
+    precio = models.FloatField("Precio",null=False,default=False)
+    cantidad = models.IntegerField("Cantidad",null=False,default=False)
     
 class UserApp(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -56,7 +56,7 @@ class Conexion(models.Model):
     ("RZ", "Rechazado"),
     )
     estado = models.CharField(choices = ESTADO_CHOICES,max_length=20,default="EE")
-    animal = models.OneToOneField(animalAdopcion,on_delete=models.CASCADE)
+    animal = models.OneToOneField(AnimalAdopcion,on_delete=models.CASCADE)
     interesado = models.OneToOneField(Interesado,on_delete=models.CASCADE)
     oferente = models.OneToOneField(Oferente,on_delete=models.CASCADE)
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
