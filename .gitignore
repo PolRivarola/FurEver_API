@@ -161,3 +161,15 @@ cython_debug/
 #.idea/
 
 /.vscode
+furever_venv/pyvenv.cfg
+furever_venv/Scripts/activate
+furever_venv/Scripts/activate.bat
+furever_venv/Scripts/Activate.ps1
+furever_venv/Scripts/deactivate.bat
+furever_venv/Scripts/django-admin.exe
+furever_venv/Scripts/pip.exe
+furever_venv/Scripts/pip3.11.exe
+furever_venv/Scripts/pip3.exe
+furever_venv/Scripts/python.exe
+furever_venv/Scripts/pythonw.exe
+furever_venv/Scripts/sqlformat.exe
