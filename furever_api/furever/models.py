@@ -2,13 +2,23 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Animal(models.Model):
+    ESPECIE_CHOICES = (
+    ("P", "Perro"),
+    ("G", "Gato"),
+    ("C", "Conejo"),
+    ("T","Tortuga"),
+    ("S","Serpiente"),
+    ("O","Otros")
+    )
     nombre = models.CharField("Nombre",max_length=50,null=False,blank=False) 
-    especie = models.CharField("Especie",max_length=50,null=False,blank=False) 
+    especie = models.CharField(choices = ESPECIE_CHOICES,max_length=20,default="P")
     raza = models.CharField("Raza",max_length=50,null=True,blank=True) 
-    peso = models.CharField("Nombre",max_length=50,null=False,blank=False)
+    peso = models.CharField("Peso",max_length=50,null=False,blank=False)
     descripcion = models.TextField("Descripción",null=True,blank=True)
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
-
+    
+    def __str__(self):
+        return self.nombre
 
 class AnimalAdopcion(Animal):
     vacunas_completas = models.BooleanField("Vacunas completas",null=False,blank=False)
@@ -33,7 +43,7 @@ class UserApp(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.IntegerField("Teléfono",null=False)
     def __str__(self):
-        return self.nombre
+        return self.user.username
     
 class Interesado(models.Model):
     user = models.OneToOneField(UserApp, on_delete=models.CASCADE)
