@@ -23,17 +23,12 @@ class Interesado(models.Model):
     horarios = models.TextField("Horarios",null=True,blank=True)
     
 class Animal(models.Model):
-    ESPECIE_CHOICES = (
-    ("P", "Perro"),
-    ("G", "Gato"),
-    ("C", "Conejo"),
-    ("T","Tortuga"),
-    ("S","Serpiente"),
-    ("O","Otros")
+    GENERO_CHOICES = (
+    ("M", "Macho"),
+    ("H", "Hembra"),
     )
-    nombre = models.CharField("Nombre",max_length=50,null=False,blank=False) 
-    especie = models.CharField(choices = ESPECIE_CHOICES,max_length=20,default="P")
-    raza = models.CharField("Raza",max_length=50,null=True,blank=True) 
+    nombre = models.CharField("Nombre",max_length=50,null=False,blank=False)
+    genero = models.CharField(choices = GENERO_CHOICES,max_length=20,default="P")
     peso = models.CharField("Peso",max_length=50,null=False,blank=False)
     descripcion = models.TextField("Descripción",null=True,blank=True)
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
@@ -43,6 +38,18 @@ class Animal(models.Model):
         return self.nombre
 
 class AnimalAdopcion(Animal):
+    ESPECIE_CHOICES = (
+    ("P", "Perro"),
+    ("G", "Gato"),
+    ("C", "Conejo"),
+    ("T","Tortuga"),
+    ("S","Serpiente"),
+    ("G","De granja"),
+    ("O","Otros")
+    )
+    
+    especie = models.CharField(choices = ESPECIE_CHOICES,max_length=20,default="P")
+    raza = models.CharField("Raza",max_length=50,null=True,blank=True) 
     vacunas_completas = models.BooleanField("Vacunas completas",null=False,blank=False)
     edad = models.IntegerField("Edad",null=False)
     necesidades_esp =models.TextField("Necesidades especiales",null=True,blank=True)
@@ -52,6 +59,16 @@ class AnimalAdopcion(Animal):
 
 
 class AnimalVenta(Animal):
+    ESPECIE_CHOICES = (
+    ("V", "Vaca"),
+    ("G", "Gallina"),
+    ("C", "Cerdo"),
+    ("C","Caballos"),
+    ("O","Otros")
+    )
+    
+    especie = models.CharField(choices = ESPECIE_CHOICES,max_length=20,default="P")
+    raza = models.CharField("Raza",max_length=50,null=True,blank=True) 
     sanidad = models.BooleanField("Sanidad",null=False,blank=False,default=False)
     uniformidad = models.BooleanField("Uniformidad",null=False,blank=False,default=False)
     trazada = models.BooleanField("Trazada",null=False,blank=False,default=False)
