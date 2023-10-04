@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+ 
 class Animal(models.Model):
     ESPECIE_CHOICES = (
     ("P", "Perro"),
