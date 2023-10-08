@@ -5,13 +5,14 @@ from django.contrib.auth.models import User
 class UserApp(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.IntegerField("Teléfono",null=False)
-    def __str__(self):
-        return self.user.username
+
+    
 
 class Oferente(models.Model):
     user = models.OneToOneField(UserApp, on_delete=models.CASCADE)
     provincia = models.CharField("Provincia",max_length=50,null=False,blank=False) 
     empresa_fundacion = models.CharField("Empresa/Fundación",max_length=100,null=False,blank=False) 
+    
 
 class Interesado(models.Model):
     user = models.OneToOneField(UserApp, on_delete=models.CASCADE)

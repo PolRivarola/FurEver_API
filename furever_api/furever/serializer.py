@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import *
+import jsonpickle
+from django.forms.models import model_to_dict
+
 
 class AnimalSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,12 +11,22 @@ class AnimalSerializer(serializers.ModelSerializer):
 
 class AnimalAdopcionSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField('get_photos')
-    
+    interested = serializers.SerializerMethodField('get_interested')
+
+    def get_interested(self,animal):
+        interested = []
+        for i in Conexion.objects.all().filter(animal=animal):
+            interested_dict = model_to_dict(i.interested)
+            serialized_data = jsonpickle.encode(interested_dict)
+            interested.append(serialized_data)
+        return interested
+        
     def get_photos(self,animal):
         pics = []
         for i in animal.foto_set.all():
             pics.append(i.foto.url)
         return pics
+
     class Meta:
         model = AnimalAdopcion
         fields = ('nombre',
@@ -28,9 +41,19 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
                   'descripcion',
                   'fecha_creacion',
                   'descripcion',
+                  'interested'
                   )
 
 class AnimalVentaSerializer(serializers.ModelSerializer):
+    photos = serializers.SerializerMethodField('get_photos')
+
+        
+    def get_photos(self,animal):
+        pics = []
+        for i in animal.foto_set.all():
+            pics.append(i.foto.url)
+        return pics
+    
     class Meta:
         model = AnimalVenta
         fields = ('nombre',
@@ -48,31 +71,60 @@ class AnimalVentaSerializer(serializers.ModelSerializer):
                   'mio_mio',
                   'precio',
                   'cantidad',
-                  'genero',)
+                  'genero',
+                  'photos')
 
 
 class InteresadoSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField('get_photos')
+    animals = serializers.SerializerMethodField('get_animals')
+    name = serializers.SerializerMethodField('get_name')
     
-    def get_photos(self,animal):
+    def get_animals(self,interesee):
+        animals = []
+        for i in Conexion.objects.all().filter(interesado=interesee):
+            animal_dict = model_to_dict(i.animal)
+            serialized_data = jsonpickle.encode(animal_dict)
+            animals.append(serialized_data)
+        return animals
+    
+    def get_name(self,interesee):
+        return interesee.user.user.username
+    
+    def get_photos(self,interesee):
         pics = []
-        for i in animal.foto_set.all():
+        for i in interesee.foto_set.all():
             pics.append(i.foto.url)
         return pics
     class Meta:
         model = Interesado
         fields = (
+        'name'
         'descripcion',
         'ninos',
         'tipo_hogar',
         'animales_previos',
         'animales_actuales',
         'horarios',
-        'photos'
+        'photos',
+        'animals'
         )
 
 class OferenteSerializer(serializers.ModelSerializer):
-    docs = serializers.SerializerMethodField('get_photos')
+    docs = serializers.SerializerMethodField('get_docs')
+    animals = serializers.SerializerMethodField('get_animals')
+    name = serializers.SerializerMethodField('get_name')
+
+    def get_name(self,interesee):
+        return interesee.user.user.username
+    
+    def get_animals(self,oferent):
+        animals = []
+        for i in Animal.objects.all().filter(oferente=oferent):
+            animal_dict = model_to_dict(i)
+            serialized_data = jsonpickle.encode(animal_dict)
+            animals.append(serialized_data)
+        return animals
     
     def get_docs(self,oferente):
         pics = []
@@ -82,13 +134,13 @@ class OferenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Oferente
         fields = (
-        'descripcion',
-        'ninos',
-        'tipo_hogar',
-        'animales_previos',
-        'animales_actuales',
-        'horarios',
-        'docs'
+        'name',
+        'provincia',
+        'empresa_fundacion',
+        'docs',
+        'animals',
+        
+        
         
         )
 
