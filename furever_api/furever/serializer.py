@@ -7,25 +7,90 @@ class AnimalSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AnimalAdopcionSerializer(serializers.ModelSerializer):
+    photos = serializers.SerializerMethodField('get_photos')
+    
+    def get_photos(self,animal):
+        pics = []
+        for i in animal.foto_set.all():
+            pics.append(i.foto.url)
+        return pics
     class Meta:
         model = AnimalAdopcion
-        fields = '__all__'
+        fields = ('nombre',
+                  'especie',
+                  'raza',
+                  'vacunas_completas'
+                  ,'edad'
+                  ,'necesidades_esp'
+                  ,'photos'
+                  ,'genero',
+                  'peso',
+                  'descripcion',
+                  'fecha_creacion',
+                  'descripcion',
+                  )
 
 class AnimalVentaSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnimalVenta
-        fields = '__all__'
+        fields = ('nombre',
+                  'peso',
+                  'descripcion',
+                  'fecha_creacion',
+                  'descripcion',
+                  'especie',
+                  'raza',
+                  'sanidad',
+                  'uniformidad',
+                  'trazada',
+                  'marca_liquida',
+                  'garrapata',
+                  'mio_mio',
+                  'precio',
+                  'cantidad',
+                  'genero',)
 
 
 class InteresadoSerializer(serializers.ModelSerializer):
+    photos = serializers.SerializerMethodField('get_photos')
+    
+    def get_photos(self,animal):
+        pics = []
+        for i in animal.foto_set.all():
+            pics.append(i.foto.url)
+        return pics
     class Meta:
         model = Interesado
-        fields = '__all__'
+        fields = (
+        'descripcion',
+        'ninos',
+        'tipo_hogar',
+        'animales_previos',
+        'animales_actuales',
+        'horarios',
+        'photos'
+        )
 
 class OferenteSerializer(serializers.ModelSerializer):
+    docs = serializers.SerializerMethodField('get_photos')
+    
+    def get_docs(self,oferente):
+        pics = []
+        for i in oferente.documentacion_set.all():
+            pics.append(i.doc.url)
+        return pics
     class Meta:
         model = Oferente
-        fields = '__all__'
+        fields = (
+        'descripcion',
+        'ninos',
+        'tipo_hogar',
+        'animales_previos',
+        'animales_actuales',
+        'horarios',
+        'docs'
+        
+        )
 
 class ConexionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,5 +104,5 @@ class FotoSerializer(serializers.ModelSerializer):
 
 class DocumentacionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Foto
+        model = Documentacion
         fields = '__all__'
