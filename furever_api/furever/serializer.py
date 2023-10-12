@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import *
-import jsonpickle
 from django.forms.models import model_to_dict
 
 
@@ -16,15 +15,19 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
     def get_interested(self,animal):
         interested = []
         for i in Conexion.objects.all().filter(animal=animal):
-            interested_dict = model_to_dict(i.interested)
-            serialized_data = jsonpickle.encode(interested_dict)
-            interested.append(serialized_data)
+            interested_dict = model_to_dict(i.interesado)
+            photo_list = []
+            for photo in i.interesado.foto_set.all():
+                photo_list.append(photo.foto)
+            interested_dict['photos'] = photo_list
+            interested_dict['name'] = i.interesado.user.user.username
+            interested.append(interested_dict)
         return interested
         
     def get_photos(self,animal):
         pics = []
         for i in animal.foto_set.all():
-            pics.append(i.foto.url)
+            pics.append(i.foto)
         return pics
 
     class Meta:
@@ -51,7 +54,7 @@ class AnimalVentaSerializer(serializers.ModelSerializer):
     def get_photos(self,animal):
         pics = []
         for i in animal.foto_set.all():
-            pics.append(i.foto.url)
+            pics.append(i.foto)
         return pics
     
     class Meta:
@@ -84,8 +87,7 @@ class InteresadoSerializer(serializers.ModelSerializer):
         animals = []
         for i in Conexion.objects.all().filter(interesado=interesee):
             animal_dict = model_to_dict(i.animal)
-            serialized_data = jsonpickle.encode(animal_dict)
-            animals.append(serialized_data)
+            animals.append(animal_dict)
         return animals
     
     def get_name(self,interesee):
@@ -94,12 +96,12 @@ class InteresadoSerializer(serializers.ModelSerializer):
     def get_photos(self,interesee):
         pics = []
         for i in interesee.foto_set.all():
-            pics.append(i.foto.url)
+            pics.append(i.foto)
         return pics
     class Meta:
         model = Interesado
         fields = (
-        'name'
+        'name',
         'descripcion',
         'ninos',
         'tipo_hogar',
@@ -122,14 +124,13 @@ class OferenteSerializer(serializers.ModelSerializer):
         animals = []
         for i in Animal.objects.all().filter(oferente=oferent):
             animal_dict = model_to_dict(i)
-            serialized_data = jsonpickle.encode(animal_dict)
-            animals.append(serialized_data)
+            animals.append(animal_dict)
         return animals
     
     def get_docs(self,oferente):
         pics = []
         for i in oferente.documentacion_set.all():
-            pics.append(i.doc.url)
+            pics.append(i.doc)
         return pics
     class Meta:
         model = Oferente
@@ -158,3 +159,48 @@ class DocumentacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documentacion
         fields = '__all__'
+        
+from rest_framework import serializers
+from .models import Interesado, User, UserApp
+
+class InteresadoRegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True)
+    photos = serializers.ListField(write_only=True, required=False)
+
+    class Meta:
+        model = Interesado
+        fields = ['username', 'password', 'phone', 'descripcion', 'ninos', 'tipo_hogar', 'animales_previos', 'animales_actuales', 'horarios','photos']
+
+    def create(self, validated_data):
+        # Extract user-related data
+        username = validated_data['username']
+        password = validated_data['password']
+        phone = validated_data['phone']
+        photos_data = validated_data.pop('photos', [])
+
+        # Create User and UserApp
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+
+        user_app = UserApp(user=user, telefono=phone)
+        user_app.save()
+
+        # Create Interesado
+        interesado_data = validated_data
+        interesado_data['user'] = user_app
+        del interesado_data['username']
+        del interesado_data['password']
+        del interesado_data['phone']
+
+        interesado = Interesado.objects.create(**interesado_data)
+        for url in photos_data:
+            Foto.objects.create(interesado=interesado, foto=url)
+
+        return interesado
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    password = serializers.CharField(write_only=True)
