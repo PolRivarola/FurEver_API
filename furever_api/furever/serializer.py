@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import *
+from django.forms.models import model_to_dict
+
 
 class AnimalSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,12 +10,26 @@ class AnimalSerializer(serializers.ModelSerializer):
 
 class AnimalAdopcionSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField('get_photos')
-    
+    interested = serializers.SerializerMethodField('get_interested')
+
+    def get_interested(self,animal):
+        interested = []
+        for i in Conexion.objects.all().filter(animal=animal):
+            interested_dict = model_to_dict(i.interesado)
+            photo_list = []
+            for photo in i.interesado.foto_set.all():
+                photo_list.append(photo.foto)
+            interested_dict['photos'] = photo_list
+            interested_dict['name'] = i.interesado.user.user.username
+            interested.append(interested_dict)
+        return interested
+        
     def get_photos(self,animal):
         pics = []
         for i in animal.foto_set.all():
-            pics.append(i.foto.url)
+            pics.append(i.foto)
         return pics
+
     class Meta:
         model = AnimalAdopcion
         fields = ('nombre',
@@ -28,9 +44,19 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
                   'descripcion',
                   'fecha_creacion',
                   'descripcion',
+                  'interested'
                   )
 
 class AnimalVentaSerializer(serializers.ModelSerializer):
+    photos = serializers.SerializerMethodField('get_photos')
+
+        
+    def get_photos(self,animal):
+        pics = []
+        for i in animal.foto_set.all():
+            pics.append(i.foto)
+        return pics
+    
     class Meta:
         model = AnimalVenta
         fields = ('nombre',
@@ -48,47 +74,74 @@ class AnimalVentaSerializer(serializers.ModelSerializer):
                   'mio_mio',
                   'precio',
                   'cantidad',
-                  'genero',)
+                  'genero',
+                  'photos')
 
 
 class InteresadoSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField('get_photos')
+    animals = serializers.SerializerMethodField('get_animals')
+    name = serializers.SerializerMethodField('get_name')
     
-    def get_photos(self,animal):
+    def get_animals(self,interesee):
+        animals = []
+        for i in Conexion.objects.all().filter(interesado=interesee):
+            animal_dict = model_to_dict(i.animal)
+            animals.append(animal_dict)
+        return animals
+    
+    def get_name(self,interesee):
+        return interesee.user.user.username
+    
+    def get_photos(self,interesee):
         pics = []
-        for i in animal.foto_set.all():
-            pics.append(i.foto.url)
+        for i in interesee.foto_set.all():
+            pics.append(i.foto)
         return pics
     class Meta:
         model = Interesado
         fields = (
+        'name',
         'descripcion',
         'ninos',
         'tipo_hogar',
         'animales_previos',
         'animales_actuales',
         'horarios',
-        'photos'
+        'photos',
+        'animals'
         )
 
 class OferenteSerializer(serializers.ModelSerializer):
-    docs = serializers.SerializerMethodField('get_photos')
+    docs = serializers.SerializerMethodField('get_docs')
+    animals = serializers.SerializerMethodField('get_animals')
+    name = serializers.SerializerMethodField('get_name')
+
+    def get_name(self,interesee):
+        return interesee.user.user.username
+    
+    def get_animals(self,oferent):
+        animals = []
+        for i in Animal.objects.all().filter(oferente=oferent):
+            animal_dict = model_to_dict(i)
+            animals.append(animal_dict)
+        return animals
     
     def get_docs(self,oferente):
         pics = []
         for i in oferente.documentacion_set.all():
-            pics.append(i.doc.url)
+            pics.append(i.doc)
         return pics
     class Meta:
         model = Oferente
         fields = (
-        'descripcion',
-        'ninos',
-        'tipo_hogar',
-        'animales_previos',
-        'animales_actuales',
-        'horarios',
-        'docs'
+        'name',
+        'provincia',
+        'empresa_fundacion',
+        'docs',
+        'animals',
+        
+        
         
         )
 
@@ -106,3 +159,48 @@ class DocumentacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documentacion
         fields = '__all__'
+        
+from rest_framework import serializers
+from .models import Interesado, User, UserApp
+
+class InteresadoRegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True)
+    photos = serializers.ListField(write_only=True, required=False)
+
+    class Meta:
+        model = Interesado
+        fields = ['username', 'password', 'phone', 'descripcion', 'ninos', 'tipo_hogar', 'animales_previos', 'animales_actuales', 'horarios','photos']
+
+    def create(self, validated_data):
+        # Extract user-related data
+        username = validated_data['username']
+        password = validated_data['password']
+        phone = validated_data['phone']
+        photos_data = validated_data.pop('photos', [])
+
+        # Create User and UserApp
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+
+        user_app = UserApp(user=user, telefono=phone)
+        user_app.save()
+
+        # Create Interesado
+        interesado_data = validated_data
+        interesado_data['user'] = user_app
+        del interesado_data['username']
+        del interesado_data['password']
+        del interesado_data['phone']
+
+        interesado = Interesado.objects.create(**interesado_data)
+        for url in photos_data:
+            Foto.objects.create(interesado=interesado, foto=url)
+
+        return interesado
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    password = serializers.CharField(write_only=True)
