@@ -92,12 +92,12 @@ class Conexion(models.Model):
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
 
 class Foto(models.Model):
-    foto = models.CharField("Link a foto",max_length=50,null=True,blank=True)
+    foto = models.CharField("Link a foto",max_length=500,null=True,blank=True)
     interesado = models.ForeignKey(Interesado,on_delete=models.CASCADE,null=True,blank=True)
     animal = models.ForeignKey(Animal,on_delete=models.CASCADE,null=True,blank=True)
 
 class Documentacion(models.Model):
-    doc = models.CharField("Link a documentacion",max_length=50,null=True,blank=True)
+    doc = models.CharField("Link a documentacion",max_length=500,null=True,blank=True)
     oferente = models.ForeignKey(Oferente,on_delete=models.CASCADE)
     descripcion = models.TextField("Descripción",null=True,blank=True)
 
