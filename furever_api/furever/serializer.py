@@ -21,6 +21,7 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
                 photo_list.append(photo.foto)
             interested_dict['photos'] = photo_list
             interested_dict['name'] = i.interesado.user.user.username
+            
             interested.append(interested_dict)
         return interested
         
@@ -87,6 +88,10 @@ class InteresadoSerializer(serializers.ModelSerializer):
         animals = []
         for i in Conexion.objects.all().filter(interesado=interesee):
             animal_dict = model_to_dict(i.animal)
+            animal_dict['status'] = i.estado
+            animal_dict['o_phone'] = i.animal.oferente.user.telefono
+            animal_dict['o_name'] = i.animal.oferente.user.user.username
+            
             animals.append(animal_dict)
         return animals
     
