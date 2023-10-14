@@ -14,7 +14,8 @@ router.register(r'fotos',FotoView,'fotos')
 
 urlpatterns = [
     path("api/",include(router.urls)),
-    path('api/register/', InterestedRegistrationView.as_view(), name='interestee-registration'),
+    path('api/register/interested', InterestedRegistrationView.as_view(), name='interestee-registration'),
+    path('api/register/offerer', OffererRegistrationView.as_view(), name='offerer-registration'),
     path('api/login/', LoginView.as_view(), name='login'),
 
 ]
