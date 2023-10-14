@@ -206,6 +206,44 @@ class InteresadoRegistrationSerializer(serializers.ModelSerializer):
 
         return interesado
 
+class OferenteRegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True)
+    docs = serializers.ListField(write_only=True, required=False)
+
+    class Meta:
+        model = Interesado
+        fields = ['username', 'password', 'phone', 'provincia', 'empresa_fundacion','docs']
+
+    def create(self, validated_data):
+        # Extract user-related data
+        username = validated_data['username']
+        password = validated_data['password']
+        phone = validated_data['phone']
+        docs_data = validated_data.pop('docs', [])
+
+        # Create User and UserApp
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+
+        user_app = UserApp(user=user, telefono=phone)
+        user_app.save()
+
+        # Create Interesado
+        oferente_data = validated_data
+        oferente_data['user'] = user_app
+        del oferente_data['username']
+        del oferente_data['password']
+        del oferente_data['phone']
+
+        oferente = Oferente.objects.create(**oferente_data)
+        for url in docs_data:
+            Documentacion.objects.create(oferente=oferente, doc=url)
+
+        return oferente
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True)
