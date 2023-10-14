@@ -17,10 +17,10 @@ class Oferente(models.Model):
 class Interesado(models.Model):
     user = models.OneToOneField(UserApp, on_delete=models.CASCADE)
     descripcion = models.TextField("Descripción",null=True,blank=True)
-    ninos = models.BooleanField("Niños",null=False,blank=False)
+    ninos = models.BooleanField("Niños",null=True,blank=True)
     tipo_hogar = models.TextField("Tipo de hogar",null=True,blank=True)
-    animales_previos = models.BooleanField("Animales Previos",null=False,blank=False)
-    animales_actuales = models.BooleanField("Animales Actuales",null=False,blank=False)
+    animales_previos = models.BooleanField("Animales Previos",null=True,blank=True)
+    animales_actuales = models.BooleanField("Animales Actuales",null=True,blank=True)
     horarios = models.TextField("Horarios",null=True,blank=True)
     
 class Animal(models.Model):

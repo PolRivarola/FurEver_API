@@ -80,13 +80,23 @@ class FotoView(viewsets.ModelViewSet):
     serializer_class = FotoSerializer
     queryset = Foto.objects.all()
 
-class UserRegistrationView(APIView):
+class InterestedRegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = InteresadoRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             interestee = serializer.save()
+            return Response({'message': 'User registrado con éxito'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class OffererRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = OferenteRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            offerer = serializer.save()
             return Response({'message': 'User registrado con éxito'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -108,13 +118,13 @@ class LoginView(APIView):
 def test_user_registration():
     url = 'http://localhost:8000/furever/api/register/'  # Replace with your API endpoint URL
     data = {
-        'username': 'testuser3',
+        'username': 'testuser4',
         'password': 'testpassword',
         'phone': '1234',
         'descripcion': 'Lorem',
-        'ninos': True,  # Use True instead of 'True'
+        'ninos': False,  # Use True instead of 'True'
         'tipo_hogar': "Lorem",
-        'animales_previos': True,  # Use True instead of 'True'
+        'animales_previos': False,  # Use True instead of 'True'
         'animales_actuales': True,  # Use True instead of 'True'
         'horarios': "Lorem",
         'photos': ['url1', 'url2', 'url3'],
@@ -122,7 +132,7 @@ def test_user_registration():
 
     headers = {'Content-Type': 'application/json'}  # Set the Content-Type header
     response = requests.post(url, json=data, headers=headers)  # Use json=data to send JSON content
-
+    
     
     print("Response Status Code:", response.status_code)
 
