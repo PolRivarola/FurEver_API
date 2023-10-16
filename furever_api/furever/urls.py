@@ -17,5 +17,8 @@ urlpatterns = [
     path('api/register/interested', InterestedRegistrationView.as_view(), name='interestee-registration'),
     path('api/register/offerer', OffererRegistrationView.as_view(), name='offerer-registration'),
     path('api/login/', LoginView.as_view(), name='login'),
+    path('api/conection-d/', ConectionDecisionView.as_view(), name='conection-d'),
+    
+    
 
 ]
