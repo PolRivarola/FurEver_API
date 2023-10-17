@@ -33,7 +33,7 @@ class Animal(models.Model):
     peso = models.CharField("Peso",max_length=50,null=False,blank=False)
     descripcion = models.TextField("Descripción",null=True,blank=True)
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
-    oferente = models.ForeignKey(Oferente,on_delete=models.CASCADE,default=None)
+    oferente = models.ForeignKey(Oferente,on_delete=models.CASCADE,default=None,null=True,blank=True)
     
     def __str__(self):
         return self.nombre
@@ -86,11 +86,17 @@ class Conexion(models.Model):
     ("AC", "Aceptado"),
     ("RZ", "Rechazado"),
     )
+    
+    TIPO_CHOICES = (
+        ("P","Positiva"),
+        ("N","Negativa"),
+    )
     estado = models.CharField(choices = ESTADO_CHOICES,max_length=20,default="EE")
     animal = models.ForeignKey(AnimalAdopcion,on_delete=models.CASCADE)
     interesado = models.ForeignKey(Interesado,on_delete=models.CASCADE)
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
-
+    tipo = models.CharField(choices = TIPO_CHOICES,max_length=20,default="P")
+    
 class Foto(models.Model):
     foto = models.CharField("Link a foto",max_length=500,null=True,blank=True)
     interesado = models.ForeignKey(Interesado,on_delete=models.CASCADE,null=True,blank=True)

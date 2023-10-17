@@ -11,18 +11,22 @@ class AnimalSerializer(serializers.ModelSerializer):
 class AnimalAdopcionSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField('get_photos')
     interested = serializers.SerializerMethodField('get_interested')
-
+    photo_urls = serializers.ListField(
+            child=serializers.CharField(max_length=500),
+            write_only=True
+        )
     def get_interested(self,animal):
         interested = []
         for i in Conexion.objects.all().filter(animal=animal):
-            interested_dict = model_to_dict(i.interesado)
-            photo_list = []
-            for photo in i.interesado.foto_set.all():
-                photo_list.append(photo.foto)
-            interested_dict['photos'] = photo_list
-            interested_dict['name'] = i.interesado.user.user.username
-            
-            interested.append(interested_dict)
+            if i == "P":
+                interested_dict = model_to_dict(i.interesado)
+                photo_list = []
+                for photo in i.interesado.foto_set.all():
+                    photo_list.append(photo.foto)
+                interested_dict['photos'] = photo_list
+                interested_dict['name'] = i.interesado.user.user.username
+                
+                interested.append(interested_dict)
         return interested
         
     def get_photos(self,animal):
@@ -30,6 +34,24 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
         for i in animal.foto_set.all():
             pics.append(i.foto)
         return pics
+    
+    def create(self, validated_data):
+        photo_urls = validated_data.pop('photo_urls', [])
+        
+        oferente_pk = validated_data.pop('oferente', None)
+        
+        animal = AnimalAdopcion.objects.create(**validated_data)
+        if oferente_pk:
+            animal.oferente = oferente_pk
+            animal.save()
+                
+
+        for url in photo_urls:
+            foto = Foto(animal=animal, foto=url)
+            foto.save()
+        
+        return animal
+        
 
     class Meta:
         model = AnimalAdopcion
@@ -44,8 +66,9 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
                   'peso',
                   'descripcion',
                   'fecha_creacion',
-                  'descripcion',
-                  'interested'
+                  'oferente',
+                  'interested',
+                  'photo_urls'
                   )
 
 class AnimalVentaSerializer(serializers.ModelSerializer):
@@ -87,12 +110,13 @@ class InteresadoSerializer(serializers.ModelSerializer):
     def get_animals(self,interesee):
         animals = []
         for i in Conexion.objects.all().filter(interesado=interesee):
-            animal_dict = model_to_dict(i.animal)
-            animal_dict['status'] = i.estado
-            animal_dict['o_phone'] = i.animal.oferente.user.telefono
-            animal_dict['o_name'] = i.animal.oferente.user.user.username
-            
-            animals.append(animal_dict)
+            if i.tipo == "P":
+                animal_dict = model_to_dict(i.animal)
+                animal_dict['status'] = i.estado
+                animal_dict['o_phone'] = i.animal.oferente.user.telefono
+                animal_dict['o_name'] = i.animal.oferente.user.user.username
+                
+                animals.append(animal_dict)
         return animals
     
     def get_name(self,interesee):
@@ -247,4 +271,6 @@ class OferenteRegistrationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True)
+    
+
     
