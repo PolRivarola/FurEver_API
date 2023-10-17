@@ -213,7 +213,7 @@ class OferenteRegistrationSerializer(serializers.ModelSerializer):
     docs = serializers.ListField(write_only=True, required=False)
 
     class Meta:
-        model = Interesado
+        model = Oferente
         fields = ['username', 'password', 'phone', 'provincia', 'empresa_fundacion','docs']
 
     def create(self, validated_data):
@@ -247,3 +247,4 @@ class OferenteRegistrationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True)
+    

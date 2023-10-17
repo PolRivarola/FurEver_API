@@ -99,7 +99,28 @@ class OffererRegistrationView(APIView):
             offerer = serializer.save()
             return Response({'message': 'User registrado con éxito'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ConectionDecisionView(APIView):
+    permission_classes = [AllowAny]
     
+    def post(self,request):
+        interested = request.data['interested']
+        animal = request.data['animal']
+        answer = request.data['answer']
+        
+        conection = Conexion.objects.filter(interesado=interested,animal=animal).first()
+        if conection:
+            if answer == "accept":
+                conection.estado = "AC"
+            if answer == "reject":
+                conection.estado = "RZ"
+            conection.save()
+            return Response({'message': 'Se cambio el estado de la conexión'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'No se encontro conexión'}, status=status.HTTP_400_BAD_REQUEST)
+
+  
+
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -111,7 +132,18 @@ class LoginView(APIView):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)  # Log the user in
-                return user
+                if Interesado.objects.filter(user__user__username = username).first():
+                    u_type = "Interested"
+                else:
+                    u_type = "Offerer"
+                
+                user_data = {
+                    'id':user.id,
+                    'password':password,
+                    'username':username,
+                    'tipo': u_type
+                }
+                return Response({'message': 'Login successful', 'user_data': user_data}, status=status.HTTP_200_OK)
         
         return Response({'message': 'Login failed'}, status=status.HTTP_401_UNAUTHORIZED)
 
