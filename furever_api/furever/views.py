@@ -22,10 +22,13 @@ class AnimalAdopcionView(viewsets.ModelViewSet):
         fields = [f.column for f in self.model._meta.fields]
         fdict = {k: self.request.GET.get(k) for k in self.request.GET
                  }
+        interested = fdict.pop('interested', None)
         oferente_name = fdict.pop('owner', None)
         queryset = self.model.objects.filter(**fdict)
         if oferente_name:
             queryset = queryset.filter(oferente__user__user__username=oferente_name)
+        if interested:
+            queryset = queryset.exclude(conexion__interesado__pk = interested)
         return queryset
     
 
@@ -112,12 +115,36 @@ class ConectionDecisionView(APIView):
         if conection:
             if answer == "accept":
                 conection.estado = "AC"
+                for conection_r in Conexion.objects.filter(animal=animal):
+                    if conection_r.interesado != interested:
+                        conection_r.estado = "RZ"
+                        conection_r.save()
             if answer == "reject":
                 conection.estado = "RZ"
             conection.save()
             return Response({'message': 'Se cambio el estado de la conexión'}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'No se encontro conexión'}, status=status.HTTP_400_BAD_REQUEST)
+
+class CardDecisionView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self,request):
+        interested = request.data['interested']
+        animal = request.data['animal']
+        c_type = request.data['type']
+        
+        try:
+            connection = Conexion.objects.create(
+                tipo=c_type,
+                animal = AnimalAdopcion.objects.get(pk=animal),
+                interesado = Interesado.objects.get(pk=interested)
+            )
+            
+            return Response({'message': 'Se creó la conexión'}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({'message': 'Error:'+ str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
   
 
