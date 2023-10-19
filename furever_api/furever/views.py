@@ -123,6 +123,7 @@ class ConectionDecisionView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
+        print(request.data)
         serializer = LoginSerializer(data=request.data)
         
         if serializer.is_valid():
