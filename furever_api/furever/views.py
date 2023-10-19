@@ -115,6 +115,10 @@ class ConectionDecisionView(APIView):
         if conection:
             if answer == "accept":
                 conection.estado = "AC"
+                for conection_r in Conexion.objects.filter(animal=animal):
+                    if conection_r.interesado != interested:
+                        conection_r.estado = "RZ"
+                        conection_r.save()
             if answer == "reject":
                 conection.estado = "RZ"
             conection.save()

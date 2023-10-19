@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/register/offerer', OffererRegistrationView.as_view(), name='offerer-registration'),
     path('api/login/', LoginView.as_view(), name='login'),
     path('api/conection-d/', ConectionDecisionView.as_view(), name='conection-d'),
+    path('api/card-d/', CardDecisionView.as_view(), name='card-d'),
     
     
 

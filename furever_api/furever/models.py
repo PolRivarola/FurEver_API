@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 class UserApp(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.IntegerField("Teléfono",null=False)
+    def __str__(self):
+        return self.user.username
 
     
 
@@ -12,6 +14,8 @@ class Oferente(models.Model):
     user = models.OneToOneField(UserApp, on_delete=models.CASCADE)
     provincia = models.CharField("Provincia",max_length=50,null=False,blank=False) 
     empresa_fundacion = models.CharField("Empresa/Fundación",max_length=100,null=False,blank=False) 
+    def __str__(self):
+        return self.user.user.username
     
 
 class Interesado(models.Model):
@@ -22,6 +26,9 @@ class Interesado(models.Model):
     animales_previos = models.BooleanField("Animales Previos",null=True,blank=True)
     animales_actuales = models.BooleanField("Animales Actuales",null=True,blank=True)
     horarios = models.TextField("Horarios",null=True,blank=True)
+    
+    def __str__(self):
+        return self.user.user.username
     
 class Animal(models.Model):
     GENERO_CHOICES = (
@@ -45,7 +52,7 @@ class AnimalAdopcion(Animal):
     ("C", "Conejo"),
     ("T","Tortuga"),
     ("S","Serpiente"),
-    ("G","De granja"),
+    ("DG","De granja"),
     ("O","Otros")
     )
     
@@ -96,15 +103,27 @@ class Conexion(models.Model):
     interesado = models.ForeignKey(Interesado,on_delete=models.CASCADE)
     fecha_creacion = models.DateField("Fecha creación", auto_now_add=True)
     tipo = models.CharField(choices = TIPO_CHOICES,max_length=20,default="P")
+    def __str__(self):
+        return self.animal.nombre +"+"+self.interesado.user.user.username
     
 class Foto(models.Model):
     foto = models.CharField("Link a foto",max_length=500,null=True,blank=True)
     interesado = models.ForeignKey(Interesado,on_delete=models.CASCADE,null=True,blank=True)
     animal = models.ForeignKey(Animal,on_delete=models.CASCADE,null=True,blank=True)
+    def __str__(self):
+        if self.animal:
+            show = self.animal.nombre
+        else:
+            show = self.interesado.user.user.username
+        return "Foto de "+ show
 
 class Documentacion(models.Model):
     doc = models.CharField("Link a documentacion",max_length=500,null=True,blank=True)
     oferente = models.ForeignKey(Oferente,on_delete=models.CASCADE)
     descripcion = models.TextField("Descripción",null=True,blank=True)
+    
+    def __str__(self):
+
+        return "Foto de "+ self.oferente.user.user.username
 
  

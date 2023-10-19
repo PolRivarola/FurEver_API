@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from .models import *
 from django.forms.models import model_to_dict
@@ -18,13 +19,14 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
     def get_interested(self,animal):
         interested = []
         for i in Conexion.objects.all().filter(animal=animal):
-            if i == "P":
+            if i.tipo == "P":
                 interested_dict = model_to_dict(i.interesado)
                 photo_list = []
                 for photo in i.interesado.foto_set.all():
                     photo_list.append(photo.foto)
                 interested_dict['photos'] = photo_list
                 interested_dict['name'] = i.interesado.user.user.username
+                interested_dict['conection'] = i.estado
                 
                 interested.append(interested_dict)
         return interested
@@ -32,7 +34,13 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
     def get_photos(self,animal):
         pics = []
         for i in animal.foto_set.all():
-            pics.append(i.foto)
+            pattern = r"/file/d/([a-zA-Z0-9_-]+)"
+            match = re.search(pattern, i.foto)
+            if match:
+                file_id = match.group(1)
+                pics_dict = {"link": i.foto, "id": file_id}
+                pics.append(pics_dict)
+
         return pics
     
     def create(self, validated_data):
@@ -55,7 +63,8 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnimalAdopcion
-        fields = ('nombre',
+        fields = ('id',
+                  'nombre',
                   'especie',
                   'raza',
                   'vacunas_completas'
@@ -115,6 +124,14 @@ class InteresadoSerializer(serializers.ModelSerializer):
                 animal_dict['status'] = i.estado
                 animal_dict['o_phone'] = i.animal.oferente.user.telefono
                 animal_dict['o_name'] = i.animal.oferente.user.user.username
+                animal_pic = []
+                for photo in Foto.objects.filter(animal=i.animal):
+                    pattern = r"/file/d/([a-zA-Z0-9_-]+)"
+                    match = re.search(pattern, photo.foto)
+                    if match:
+                        file_id = match.group(1)
+                        animal_pic.append({"link":photo.foto,"id":file_id})
+                animal_dict["photos"] = animal_pic
                 
                 animals.append(animal_dict)
         return animals
