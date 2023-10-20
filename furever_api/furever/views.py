@@ -161,8 +161,11 @@ class LoginView(APIView):
                 login(request, user)  # Log the user in
                 if Interesado.objects.filter(user__user__username = username).first():
                     u_type = "Interested"
+                    user = Interesado.objects.filter(user__user__username = username).first()
                 else:
                     u_type = "Offerer"
+                    user = Oferente.objects.filter(user__user__username = username).first()
+                    
                 
                 user_data = {
                     'id':user.id,
