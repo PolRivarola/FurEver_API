@@ -124,6 +124,7 @@ class InteresadoSerializer(serializers.ModelSerializer):
                 animal_dict['status'] = i.estado
                 animal_dict['o_phone'] = i.animal.oferente.user.telefono
                 animal_dict['o_name'] = i.animal.oferente.user.user.username
+                animal_dict['connection'] = i.pk
                 animal_pic = []
                 for photo in Foto.objects.filter(animal=i.animal):
                     pattern = r"/file/d/([a-zA-Z0-9_-]+)"

@@ -102,6 +102,21 @@ class OffererRegistrationView(APIView):
             offerer = serializer.save()
             return Response({'message': 'User registrado con éxito'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class DismissConnectionView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        interested = request.data['interested']
+        animal = request.data['animal']
+
+        conection = Conexion.objects.filter(interesado=interested,animal=animal).first()
+
+        if conection:
+            conection.estado = "N"
+            conection.save()
+            return Response({'message': 'Se cancelo la conexión'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Hubo un error en la cancelación de conexión'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ConectionDecisionView(APIView):
     permission_classes = [AllowAny]
