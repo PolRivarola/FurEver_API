@@ -150,11 +150,14 @@ class CardDecisionView(APIView):
         c_type = request.data['type']
         
         try:
-            connection = Conexion.objects.create(
+            if not Conexion.objects.filter(
+                animal = AnimalAdopcion.objects.get(pk=animal),
+                interesado = Interesado.objects.get(pk=interested)):
+                Conexion.objects.create(
                 tipo=c_type,
                 animal = AnimalAdopcion.objects.get(pk=animal),
                 interesado = Interesado.objects.get(pk=interested)
-            )
+                )
             
             return Response({'message': 'Se creó la conexión'}, status=status.HTTP_200_OK)
         
