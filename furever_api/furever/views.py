@@ -23,14 +23,19 @@ class AnimalAdopcionView(viewsets.ModelViewSet):
         fdict = {k: self.request.GET.get(k) for k in self.request.GET
                  }
         interested = fdict.pop('interested', None)
+        especie = fdict.pop('especie', None)
         oferente_name = fdict.pop('owner', None)
         queryset = self.model.objects.filter(**fdict)
         if oferente_name:
             queryset = queryset.filter(oferente__user__user__username=oferente_name)
         if interested:
             queryset = queryset.exclude(conexion__interesado__pk = interested)
+            queryset = queryset.exclude(conexion__estado = "AC")
+        if especie:
+            if especie != "":
+                    queryset = queryset.filter(especie=especie)
         return queryset
-    
+
 
 class AnimalVentaView(viewsets.ModelViewSet):
     serializer_class = AnimalVentaSerializer
