@@ -62,6 +62,25 @@ class InteresadoView(viewsets.ModelViewSet):
         if interesado_name:
             queryset = queryset.filter(user__user__username=interesado_name)
         return queryset
+    
+    def update(self, request, *args, **kwargs):
+        
+        interested = Interesado.objects.filter(pk=request.data.get("pk")).first()
+        if interested:
+            phone = request.data.get("phone")
+            photos_data = request.data.get("photos")
+            password = request.data.get("password")
+            interested.user.user.set_password(password)
+            interested.user.user.save()
+            interested.user.telefono = phone
+            interested.user.save()
+            Foto.objects.filter(interesado=interested).delete()
+            for url in photos_data:
+                Foto.objects.create(interesado=interested, foto=url)
+
+            super().update(request, *args, **kwargs)
+            return Response({'message': 'User actualizado con éxito'}, status=status.HTTP_201_CREATED)
+        return Response({'message':'Hubo un error actualizando el usuario'}, status=status.HTTP_400_BAD_REQUEST)
 
 class OferenteView(viewsets.ModelViewSet):
     serializer_class = OferenteSerializer
@@ -74,6 +93,25 @@ class OferenteView(viewsets.ModelViewSet):
         if oferente_name:
             queryset = queryset.filter(user__user__username=oferente_name)
         return queryset
+    
+    def update(self, request, *args, **kwargs):
+        
+        offerer = Oferente.objects.filter(pk=request.data.get("pk")).first()
+        if offerer:
+            phone = request.data.get("phone")
+            docs = request.data.get("docs")
+            password = request.data.get("password")
+            offerer.user.user.set_password(password)
+            offerer.user.user.save()
+            offerer.user.telefono = phone
+            offerer.user.save()
+            Documentacion.objects.filter(oferente=offerer).delete()
+            for url in docs:
+                Documentacion.objects.create(oferente=offerer, doc=url)
+
+            super().update(request, *args, **kwargs)
+            return Response({'message': 'User actualizado con éxito'}, status=status.HTTP_201_CREATED)
+        return Response({'message':'Hubo un error actualizando el usuario'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ConexionView(viewsets.ModelViewSet):
@@ -97,6 +135,9 @@ class InterestedRegistrationView(APIView):
             interestee = serializer.save()
             return Response({'message': 'User registrado con éxito'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+        
     
 class OffererRegistrationView(APIView):
     permission_classes = [AllowAny]
