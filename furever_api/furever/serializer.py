@@ -115,7 +115,7 @@ class InteresadoSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField('get_photos')
     animals = serializers.SerializerMethodField('get_animals')
     name = serializers.SerializerMethodField('get_name')
-    phone = serializers.SerializerMethodField('get_phone')
+    
     def get_animals(self,interesee):
         animals = []
         for i in Conexion.objects.all().filter(interesado=interesee):
@@ -139,8 +139,6 @@ class InteresadoSerializer(serializers.ModelSerializer):
     
     def get_name(self,interesee):
         return interesee.user.user.username
-    def get_phone(self,interestee):
-        return interestee.user.telefono
     
     def get_photos(self,interesee):
         pics = []
@@ -150,9 +148,7 @@ class InteresadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interesado
         fields = (
-        'pk',
         'name',
-        'phone',
         'descripcion',
         'ninos',
         'tipo_hogar',
@@ -167,7 +163,6 @@ class OferenteSerializer(serializers.ModelSerializer):
     docs = serializers.SerializerMethodField('get_docs')
     animals = serializers.SerializerMethodField('get_animals')
     name = serializers.SerializerMethodField('get_name')
-    phone = serializers.SerializerMethodField('get_phone')
 
     def get_name(self,interesee):
         return interesee.user.user.username
@@ -178,8 +173,7 @@ class OferenteSerializer(serializers.ModelSerializer):
             animal_dict = model_to_dict(i)
             animals.append(animal_dict)
         return animals
-    def get_phone(self,interestee):
-        return interestee.user.telefono
+    
     def get_docs(self,oferente):
         pics = []
         for i in oferente.documentacion_set.all():
@@ -188,9 +182,7 @@ class OferenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Oferente
         fields = (
-        'pk',
         'name',
-        'phone',
         'provincia',
         'empresa_fundacion',
         'docs',
