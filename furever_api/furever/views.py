@@ -35,6 +35,19 @@ class AnimalAdopcionView(viewsets.ModelViewSet):
             if especie != "":
                     queryset = queryset.filter(especie=especie)
         return queryset
+    
+    def update(self, request, *args, **kwargs):
+        
+        animal = AnimalAdopcion.objects.filter(pk=request.data.get("pk")).first()
+        if animal:
+            photos_data = request.data.get("photo_urls")
+            Foto.objects.filter(animal=animal).delete()
+            for url in photos_data:
+                Foto.objects.create(animal=animal, foto=url)
+
+            super().update(request, *args, **kwargs)
+            return Response({'message': 'Animal actualizado con éxito'}, status=status.HTTP_201_CREATED)
+        return Response({'message':'Hubo un error actualizando al animal'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AnimalVentaView(viewsets.ModelViewSet):

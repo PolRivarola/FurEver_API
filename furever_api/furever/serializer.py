@@ -40,7 +40,6 @@ class AnimalAdopcionSerializer(serializers.ModelSerializer):
                 file_id = match.group(1)
                 pics_dict = {"link": i.foto, "id": file_id}
                 pics.append(pics_dict)
-
         return pics
     
     def create(self, validated_data):
