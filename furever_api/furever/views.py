@@ -70,8 +70,9 @@ class InteresadoView(viewsets.ModelViewSet):
             phone = request.data.get("phone")
             photos_data = request.data.get("photos")
             password = request.data.get("password")
-            interested.user.user.set_password(password)
-            interested.user.user.save()
+            if password != '':
+                interested.user.user.set_password(password)
+                interested.user.user.save()
             interested.user.telefono = phone
             interested.user.save()
             Foto.objects.filter(interesado=interested).delete()
@@ -101,8 +102,9 @@ class OferenteView(viewsets.ModelViewSet):
             phone = request.data.get("phone")
             docs = request.data.get("docs")
             password = request.data.get("password")
-            offerer.user.user.set_password(password)
-            offerer.user.user.save()
+            if password != "":
+                offerer.user.user.set_password(password)
+                offerer.user.user.save()
             offerer.user.telefono = phone
             offerer.user.save()
             Documentacion.objects.filter(oferente=offerer).delete()

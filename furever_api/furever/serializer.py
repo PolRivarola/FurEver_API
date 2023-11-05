@@ -139,6 +139,8 @@ class InteresadoSerializer(serializers.ModelSerializer):
     
     def get_name(self,interesee):
         return interesee.user.user.username
+    
+    
     def get_phone(self,interestee):
         return interestee.user.telefono
     
