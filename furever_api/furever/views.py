@@ -35,6 +35,19 @@ class AnimalAdopcionView(viewsets.ModelViewSet):
             if especie != "":
                     queryset = queryset.filter(especie=especie)
         return queryset
+    
+    def update(self, request, *args, **kwargs):
+        
+        animal = AnimalAdopcion.objects.filter(pk=request.data.get("pk")).first()
+        if animal:
+            photos_data = request.data.get("photo_urls")
+            Foto.objects.filter(animal=animal).delete()
+            for url in photos_data:
+                Foto.objects.create(animal=animal, foto=url)
+
+            super().update(request, *args, **kwargs)
+            return Response({'message': 'Animal actualizado con éxito'}, status=status.HTTP_201_CREATED)
+        return Response({'message':'Hubo un error actualizando al animal'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AnimalVentaView(viewsets.ModelViewSet):
@@ -70,8 +83,9 @@ class InteresadoView(viewsets.ModelViewSet):
             phone = request.data.get("phone")
             photos_data = request.data.get("photos")
             password = request.data.get("password")
-            interested.user.user.set_password(password)
-            interested.user.user.save()
+            if password != '':
+                interested.user.user.set_password(password)
+                interested.user.user.save()
             interested.user.telefono = phone
             interested.user.save()
             Foto.objects.filter(interesado=interested).delete()
@@ -101,8 +115,9 @@ class OferenteView(viewsets.ModelViewSet):
             phone = request.data.get("phone")
             docs = request.data.get("docs")
             password = request.data.get("password")
-            offerer.user.user.set_password(password)
-            offerer.user.user.save()
+            if password != "":
+                offerer.user.user.set_password(password)
+                offerer.user.user.save()
             offerer.user.telefono = phone
             offerer.user.save()
             Documentacion.objects.filter(oferente=offerer).delete()

@@ -12,8 +12,8 @@ class UserApp(models.Model):
 
 class Oferente(models.Model):
     user = models.OneToOneField(UserApp, on_delete=models.CASCADE)
-    provincia = models.CharField("Provincia",max_length=50,null=False,blank=False) 
-    empresa_fundacion = models.CharField("Empresa/Fundación",max_length=100,null=False,blank=False) 
+    provincia = models.CharField("Provincia",max_length=50,null=True,blank=True) 
+    empresa_fundacion = models.CharField("Empresa/Fundación",max_length=100,null=True,blank=True) 
     def __str__(self):
         return self.user.user.username
     
